@@ -418,6 +418,7 @@ impl EguiWrapper {
 				if let Some(key) = tetra_key_to_egui_key(*key) {
 					self.raw_input.events.push(egui::Event::Key {
 						key,
+						physical_key: None,
 						pressed: true,
 						repeat: false,
 						modifiers: self.raw_input.modifiers,
@@ -441,6 +442,7 @@ impl EguiWrapper {
 				if let Some(key) = tetra_key_to_egui_key(*key) {
 					self.raw_input.events.push(egui::Event::Key {
 						key,
+						physical_key: None,
 						pressed: false,
 						repeat: false,
 						modifiers: self.raw_input.modifiers,
