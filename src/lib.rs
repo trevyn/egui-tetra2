@@ -521,7 +521,9 @@ impl EguiWrapper {
 	pub fn end_frame(&mut self, ctx: &mut tetra::Context) -> Result<(), Error> {
 		let output = self.ctx.end_frame();
 		if let Some(texture) = &self.texture {
-			let clips = self.ctx.tessellate(output.shapes);
+			let clips = self
+				.ctx
+				.tessellate(output.shapes, self.ctx.pixels_per_point());
 			for clip in clips {
 				let rect = egui_rect_to_tetra_rectangle(clip.clip_rect);
 				if let Primitive::Mesh(mesh) = clip.primitive {
