@@ -1,6 +1,6 @@
 use std::{collections::VecDeque, error::Error};
 
-use egui::plot::{Line, Plot, Value, Values};
+use egui::plot::{Line, Plot, PlotPoints};
 use egui_tetra::{egui, State, StateWrapper};
 use tetra::Context;
 
@@ -34,12 +34,13 @@ impl State<Box<dyn Error>> for MainState {
 	fn ui(&mut self, _ctx: &mut Context, egui_ctx: &egui::Context) -> Result<(), Box<dyn Error>> {
 		egui::CentralPanel::default().show(egui_ctx, |ui| {
 			Plot::new("fps").include_y(0.0).show(ui, |ui| {
-				ui.line(Line::new(Values::from_values_iter(
+				ui.line(Line::new(
 					self.fps_measurements
 						.iter()
 						.enumerate()
-						.map(|(i, fps)| Value::new(i as f64, *fps)),
-				)))
+						.map(|(i, fps)| [i as f64, *fps])
+						.collect::<PlotPoints>(),
+				))
 			});
 		});
 		Ok(())

@@ -19,7 +19,7 @@ impl egui_tetra::State<Box<dyn Error>> for MainState {
 	fn ui(
 		&mut self,
 		ctx: &mut tetra::Context,
-		egui_ctx: &egui::CtxRef,
+		egui_ctx: &egui::Context,
 	) -> Result<(), Box<dyn Error>> {
 		egui::Window::new("hi!").show(egui_ctx, |ui| {
 			ui.label("Hello world!");
