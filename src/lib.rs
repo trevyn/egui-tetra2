@@ -122,11 +122,11 @@
 
 pub use egui;
 
-use std::{fmt::Display, sync::Arc, time::Instant};
+use std::{fmt::Display, time::Instant};
 
 use copypasta::{ClipboardContext, ClipboardProvider};
-use egui::{FontImage, Context, ImageData, RawInput};
 use egui::epaint::Primitive;
+use egui::{Context, FontImage, ImageData, RawInput};
 use tetra::{
 	graphics::{self, BlendState},
 	Event, TetraError,
@@ -419,6 +419,7 @@ impl EguiWrapper {
 					self.raw_input.events.push(egui::Event::Key {
 						key,
 						pressed: true,
+						repeat: false,
 						modifiers: self.raw_input.modifiers,
 					});
 				}
@@ -441,6 +442,7 @@ impl EguiWrapper {
 					self.raw_input.events.push(egui::Event::Key {
 						key,
 						pressed: false,
+						repeat: false,
 						modifiers: self.raw_input.modifiers,
 					});
 				}
@@ -508,7 +510,7 @@ impl EguiWrapper {
 		self.meshes.clear();
 		self.ctx.begin_frame(self.raw_input.take());
 		if self.texture.is_none() {
-			if let ImageData::Font(img) = self.ctx.fonts().font_image_delta().unwrap().image {
+			if let ImageData::Font(img) = self.ctx.fonts(|f| f.font_image_delta().unwrap().image) {
 				self.texture = Some(egui_font_image_to_tetra_texture(ctx, img)?);
 			}
 		}

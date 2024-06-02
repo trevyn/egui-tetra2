@@ -11,6 +11,6 @@ categories = ["game-development", "gui"]
 
 [dependencies]
 copypasta = "0.10"
-egui = "0.19"
+egui = "0.21"
 open = "5"
 tetra = { version = "0.8", default-features = false }
