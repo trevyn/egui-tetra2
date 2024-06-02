@@ -10,7 +10,7 @@ keywords = ["gamedev", "gui"]
 categories = ["game-development", "gui"]
 
 [dependencies]
-copypasta = "0.7.1"
+copypasta = "0.10"
 egui = "0.19"
-open = "2.0.1"
+open = "5"
 tetra = { version = "0.8", default-features = false }
