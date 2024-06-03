@@ -1,18 +1,19 @@
 [package]
-name = "egui-tetra2"
-version = "0.3.0"
-edition = "2021"
-license = "MIT OR Apache-2.0"
-description = "egui integration for Tetra"
-repository = "https://github.com/trevyn/egui-tetra2"
-keywords = ["gamedev", "gui", "egui", "tetra", "egui-tetra"]
 categories = ["game-development", "gui"]
+description = "egui integration for Tetra"
+edition = "2021"
+keywords = ["gamedev", "gui", "egui", "tetra", "egui-tetra"]
+license = "MIT OR Apache-2.0"
+name = "egui-tetra2"
+repository = "https://github.com/trevyn/egui-tetra2"
+version = "0.3.0"
 
 [dependencies]
 copypasta = "0.10"
 egui = "0.27"
 open = "5"
-tetra = { version = "0.8", default-features = false }
+tetra = {version = "0.8", default-features = false}
 
 [dev-dependencies]
 egui_plot = "0.27"
+tetra = {version = "0.8", features = ["sdl2_bundled"]}
