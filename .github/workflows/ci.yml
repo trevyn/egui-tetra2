@@ -35,7 +35,7 @@ jobs:
           LIBRARY_PATH="$LIBRARY_PATH:$(brew --prefix)/lib" cargo build --examples
 
       - if: matrix.os != 'macos-latest'
-      - run: cargo build --examples
+        run: cargo build --examples
 
       - run: cargo publish --dry-run
 
