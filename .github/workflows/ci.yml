@@ -26,13 +26,17 @@ jobs:
       - uses: actions/checkout@v4
       - run: rustup default ${{ matrix.rust }} && rustup update ${{ matrix.rust }}
 
-      - if: matrix.os == 'macos-latest'
-        run: brew install sdl2
-
       - if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get install libsdl2-dev alsa-base
 
+      - if: matrix.os == 'macos-latest'
+        run: |
+          brew install sdl2
+          LIBRARY_PATH="$LIBRARY_PATH:$(brew --prefix)/lib" cargo build --examples
+
+      - if: matrix.os != 'macos-latest'
       - run: cargo build --examples
+
       - run: cargo publish --dry-run
 
   publish:
