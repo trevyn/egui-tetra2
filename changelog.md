@@ -1,3 +1,9 @@
+## v0.4.0 - June 3, 2024
+
+- Fork to `egui-tetra2` due to original repository being archived.
+- Update `egui` to 0.27
+- Update `tetra` to 0.8
+
 ## v0.3.0 - January 7, 2022
 
 - Update `egui` to 0.16.1

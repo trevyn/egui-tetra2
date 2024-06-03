@@ -47,4 +47,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: rustup default stable && rustup update stable
-      - run: cargo publish --token ${{ secrets.CARGO_TOKEN }}
+      - run: cargo publish --no-verify --token ${{ secrets.CARGO_TOKEN }}
