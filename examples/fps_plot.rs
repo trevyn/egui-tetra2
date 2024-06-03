@@ -1,7 +1,7 @@
 use std::{collections::VecDeque, error::Error};
 
 use egui_plot::{Line, Plot, PlotPoints};
-use egui_tetra::{egui, State, StateWrapper};
+use egui_tetra2::{egui, State, StateWrapper};
 use tetra::Context;
 
 const MAX_FPS_MEASUREMENTS: usize = 100;

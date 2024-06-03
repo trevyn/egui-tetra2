@@ -1,23 +1,25 @@
-//! # egui-tetra
+//! # egui-tetra2
 //!
-//! egui-tetra is a library that helps integrate [egui](https://crates.io/crates/egui),
+//! This is an up-to-date and maintained fork of `tesselode/egui-tetra`, which has been archived. Issues and PRs welcome.
+//!
+//! egui-tetra2 is a library that helps integrate [egui](https://crates.io/crates/egui),
 //! an immediate mode GUI library, with [Tetra](https://crates.io/crates/tetra),
 //! a 2D game framework.
 //!
 //! ## Usage
 //!
-//! The easiest way to use egui-tetra is to make your main state struct implement
-//! egui-tetra's [`State`] trait instead of [Tetra's](tetra::State). This will
+//! The easiest way to use egui-tetra2 is to make your main state struct implement
+//! egui-tetra2's [`State`] trait instead of [Tetra's](tetra::State). This will
 //! give you access to a [`ui`](State::ui) callback where you can do your GUI
 //! rendering.
 //!
 //! ```
 //! use std::error::Error;
-//! use egui_tetra::egui;
+//! use egui_tetra2::egui;
 //!
 //! struct MainState;
 //!
-//! impl egui_tetra::State<Box<dyn Error>> for MainState {
+//! impl egui_tetra2::State<Box<dyn Error>> for MainState {
 //! 	fn ui(
 //! 		&mut self,
 //! 		ctx: &mut tetra::Context,
@@ -65,11 +67,11 @@
 //!
 //! ```no_run
 //! # use std::error::Error;
-//! # use egui_tetra::egui;
+//! # use egui_tetra2::egui;
 //! #
 //! # struct MainState;
 //! #
-//! # impl egui_tetra::State<Box<dyn Error>> for MainState {
+//! # impl egui_tetra2::State<Box<dyn Error>> for MainState {
 //! # 	fn ui(
 //! # 		&mut self,
 //! # 		ctx: &mut tetra::Context,
@@ -110,7 +112,7 @@
 //! fn main() -> Result<(), Box<dyn Error>> {
 //! 	tetra::ContextBuilder::new("example", 800, 600)
 //! 		.build()?
-//! 		.run(|_| Ok(egui_tetra::StateWrapper::new(MainState)))
+//! 		.run(|_| Ok(egui_tetra2::StateWrapper::new(MainState)))
 //! }
 //! ```
 //!
@@ -302,7 +304,7 @@ fn egui_font_image_to_tetra_texture(
 	)
 }
 
-/// An error that can occur when using egui-tetra.
+/// An error that can occur when using egui-tetra2.
 #[derive(Debug)]
 pub enum Error {
 	/// A Tetra error occurred.

@@ -1,10 +1,10 @@
-**Note:** this library is no longer maintained, as Tetra is no longer being actively developed.
+# egui-tetra2
 
-# egui-tetra
+This is an up-to-date and maintained fork of `tesselode/egui-tetra`, which has been archived. Issues and PRs welcome.
 
-#### [crates.io](https://crates.io/crates/egui-tetra) | [docs](https://docs.rs/egui-tetra)
+#### [crates.io](https://crates.io/crates/egui-tetra2) | [docs](https://docs.rs/egui-tetra2)
 
-egui-tetra is a library that helps integrate [egui](https://crates.io/crates/egui),
+egui-tetra2 is a library that helps integrate [egui](https://crates.io/crates/egui),
 an immediate mode GUI library, with [Tetra](https://crates.io/crates/tetra),
 a 2D game framework.
 
@@ -15,14 +15,16 @@ use std::error::Error;
 
 struct MainState;
 
-impl egui_tetra::State<Box<dyn Error>> for MainState {
+impl egui_tetra2::State<Box<dyn Error>> for MainState {
 	fn ui(
 		&mut self,
-		ctx: &mut tetra::Context,
+		_ctx: &mut tetra::Context,
 		egui_ctx: &egui::Context,
 	) -> Result<(), Box<dyn Error>> {
-		egui::Window::new("hi!").show(egui_ctx, |ui| {
-			ui.label("Hello world!");
+		egui::CentralPanel::default().show(egui_ctx, |_ui| {
+			egui::Window::new("hi!").show(egui_ctx, |ui| {
+				ui.label("Hello world!");
+			});
 		});
 		Ok(())
 	}
@@ -30,8 +32,9 @@ impl egui_tetra::State<Box<dyn Error>> for MainState {
 
 fn main() -> Result<(), Box<dyn Error>> {
 	tetra::ContextBuilder::new("example", 800, 600)
+		.show_mouse(true)
 		.build()?
-		.run(|_| Ok(egui_tetra::StateWrapper::new(MainState)))
+		.run(|_| Ok(egui_tetra2::StateWrapper::new(MainState)))
 }
 ```
 
@@ -39,8 +42,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 This project is licensed under either of
 
-- [Apache License, Version 2.0](https://github.com/tesselode/egui-tetra/blob/main/LICENSE-Apache)
-- [MIT license](https://github.com/tesselode/egui-tetra/blob/main/LICENSE-MIT)
+- [Apache License, Version 2.0](https://github.com/trevyn/egui-tetra2/blob/main/LICENSE-Apache)
+- [MIT license](https://github.com/trevyn/egui-tetra2/blob/main/LICENSE-MIT)
 
 at your option.
 

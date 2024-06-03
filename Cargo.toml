@@ -1,12 +1,11 @@
 [package]
-name = "egui-tetra"
+name = "egui-tetra2"
 version = "0.3.0"
-authors = ["Andrew Minnich <aminnich3@gmail.com>"]
 edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "egui integration for Tetra"
-repository = "https://github.com/tesselode/egui-tetra"
-keywords = ["gamedev", "gui"]
+repository = "https://github.com/trevyn/egui-tetra2"
+keywords = ["gamedev", "gui", "egui", "tetra", "egui-tetra"]
 categories = ["game-development", "gui"]
 
 [dependencies]

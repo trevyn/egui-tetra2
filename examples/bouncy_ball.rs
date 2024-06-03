@@ -1,6 +1,6 @@
 use std::{error::Error, ops::RangeInclusive};
 
-use egui_tetra::{egui, State, StateWrapper};
+use egui_tetra2::{egui, State, StateWrapper};
 use tetra::{
 	graphics::{
 		mesh::{Mesh, ShapeStyle},
