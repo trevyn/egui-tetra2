@@ -1,3 +1,7 @@
+## v0.4.1 - June 3, 2024
+
+- Fix README.md on crates.io
+
 ## v0.4.0 - June 3, 2024
 
 - Fork to `egui-tetra2` due to original repository being archived.
