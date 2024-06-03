@@ -1,0 +1,39 @@
+on:
+  push:
+  pull_request:
+  schedule: [cron: "40 1 * * *"]
+
+name: ci
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: build rust ${{ matrix.rust }} ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        rust: [stable, beta, nightly]
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup default ${{ matrix.rust }} && rustup update ${{ matrix.rust }}
+      - run: cargo build --examples
+      - run: cargo publish --dry-run
+
+  publish:
+    needs: [build]
+    runs-on: ubuntu-latest
+    if: ${{ contains(github.event.head_commit.message, 'egui-tetra2@') && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup default stable && rustup update stable
+      - run: cargo publish --token ${{ secrets.CARGO_TOKEN }}
