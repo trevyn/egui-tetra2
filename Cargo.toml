@@ -15,5 +15,8 @@ open = "5"
 tetra = {version = "0.8", default-features = false}
 
 [dev-dependencies]
-egui_plot = "0.27"
+egui_plot = "0.27" 
+tetra = "0.8" # include default features for testing
+
+[target.'cfg(windows)'.dev-dependencies]
 tetra = {version = "0.8", features = ["sdl2_bundled"]}
