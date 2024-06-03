@@ -7,7 +7,7 @@ keywords = ["gamedev", "gui", "egui", "tetra", "egui-tetra"]
 license = "MIT OR Apache-2.0"
 name = "egui-tetra2"
 repository = "https://github.com/trevyn/egui-tetra2"
-version = "0.4.0"
+version = "0.4.1"
 
 [dependencies]
 copypasta = "0.10"
