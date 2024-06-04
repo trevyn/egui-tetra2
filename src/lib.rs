@@ -128,7 +128,7 @@ use std::{fmt::Display, time::Instant};
 
 use copypasta::{ClipboardContext, ClipboardProvider};
 use egui::epaint::Primitive;
-use egui::{Context, FontImage, ImageData, RawInput};
+use egui::{Context, FontImage, RawInput};
 use tetra::{
 	graphics::{self, BlendState},
 	Event, TetraError,
@@ -527,17 +527,18 @@ impl EguiWrapper {
 		self.last_frame_time = now;
 		self.meshes.clear();
 		self.ctx.begin_frame(self.raw_input.take());
-		if self.texture.is_none() {
-			if let ImageData::Font(img) = self.ctx.fonts(|f| f.font_image_delta().unwrap().image) {
-				self.texture = Some(egui_font_image_to_tetra_texture(ctx, img)?);
-			}
-		}
 		Ok(())
 	}
 
 	/// Ends a GUI frame.
 	pub fn end_frame(&mut self, ctx: &mut tetra::Context) -> Result<(), Error> {
+		if self.ctx.fonts(|f| f.font_image_delta().is_some()) {
+			let img = self.ctx.fonts(|f| f.image());
+			self.texture = Some(egui_font_image_to_tetra_texture(ctx, img)?);
+		}
+
 		let output = self.ctx.end_frame();
+
 		if let Some(texture) = &self.texture {
 			let clips = self.ctx.tessellate(output.shapes, output.pixels_per_point);
 			for clip in clips {
