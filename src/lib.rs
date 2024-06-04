@@ -134,7 +134,7 @@ use tetra::{
 	Event, TetraError,
 };
 
-const SCROLL_SENSITIVITY: f32 = 48.0;
+const SCROLL_SENSITIVITY: f32 = -48.0;
 const ZOOM_SENSITIVITY: f32 = 1.25;
 
 fn tetra_vec2_to_egui_pos2(tetra_vec2: tetra::math::Vec2<f32>) -> egui::Pos2 {
