@@ -145,12 +145,15 @@ fn egui_pos2_to_tetra_vec2(egui_pos2: egui::Pos2) -> tetra::math::Vec2<f32> {
 	tetra::math::Vec2::new(egui_pos2.x, egui_pos2.y)
 }
 
-fn egui_rect_to_tetra_rectangle(egui_rect: egui::Rect) -> tetra::graphics::Rectangle<i32> {
+fn egui_rect_to_tetra_rectangle(
+	egui_rect: egui::Rect,
+	pixels_per_point: f32,
+) -> tetra::graphics::Rectangle<i32> {
 	tetra::graphics::Rectangle::new(
-		egui_rect.left() as i32,
-		egui_rect.top() as i32,
-		egui_rect.width() as i32,
-		egui_rect.height() as i32,
+		(egui_rect.left() * pixels_per_point) as i32,
+		(egui_rect.top() * pixels_per_point) as i32,
+		(egui_rect.width() * pixels_per_point) as i32,
+		(egui_rect.height() * pixels_per_point) as i32,
 	)
 }
 
@@ -367,8 +370,14 @@ pub struct EguiWrapper {
 impl EguiWrapper {
 	/// Creates a new [`EguiWrapper`] and underlying egui context.
 	pub fn new() -> Self {
+		let mut viewports = egui::viewport::ViewportIdMap::default();
+		viewports.insert(egui::ViewportId::default(), egui::ViewportInfo::default());
+
 		Self {
-			raw_input: RawInput::default(),
+			raw_input: RawInput {
+				viewports,
+				..Default::default()
+			},
 			ctx: Context::default(),
 			texture: None,
 			last_frame_time: Instant::now(),
@@ -509,6 +518,11 @@ impl EguiWrapper {
 				tetra::window::get_height(ctx) as f32,
 			),
 		});
+		self.raw_input
+			.viewports
+			.get_mut(&egui::ViewportId::default())
+			.unwrap()
+			.native_pixels_per_point = Some(tetra::window::get_dpi_scale(ctx));
 		self.raw_input.predicted_dt = (now - self.last_frame_time).as_secs_f32();
 		self.last_frame_time = now;
 		self.meshes.clear();
@@ -525,11 +539,9 @@ impl EguiWrapper {
 	pub fn end_frame(&mut self, ctx: &mut tetra::Context) -> Result<(), Error> {
 		let output = self.ctx.end_frame();
 		if let Some(texture) = &self.texture {
-			let clips = self
-				.ctx
-				.tessellate(output.shapes, self.ctx.pixels_per_point());
+			let clips = self.ctx.tessellate(output.shapes, output.pixels_per_point);
 			for clip in clips {
-				let rect = egui_rect_to_tetra_rectangle(clip.clip_rect);
+				let rect = egui_rect_to_tetra_rectangle(clip.clip_rect, output.pixels_per_point);
 				if let Primitive::Mesh(mesh) = clip.primitive {
 					let mesh = egui_mesh_to_tetra_mesh(ctx, mesh, texture.clone())?;
 					self.meshes.push((rect, mesh));

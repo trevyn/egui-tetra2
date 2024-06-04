@@ -138,6 +138,7 @@ impl State<Box<dyn Error>> for MainState {
 fn main() -> Result<(), Box<dyn Error>> {
 	tetra::ContextBuilder::new("Bouncy ball example", SCREEN_WIDTH, SCREEN_HEIGHT)
 		.show_mouse(true)
+		.high_dpi(true)
 		.build()?
 		.run(|ctx| Ok(StateWrapper::new(MainState::new(ctx)?)))
 }
