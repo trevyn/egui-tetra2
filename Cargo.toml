@@ -16,6 +16,7 @@ open = "5"
 tetra = {version = "0.8", default-features = false}
 
 [dev-dependencies]
+egui_extras = {version = "0.27", features = ["syntect"]} 
 egui_plot = "0.27" 
 tetra = "0.8" # include default features for testing
 
