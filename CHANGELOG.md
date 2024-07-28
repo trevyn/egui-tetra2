@@ -1,3 +1,9 @@
+## v0.5.0 - July 28, 2024
+
+- Update `egui` to 0.28
+- Fix updating of font atlas
+- Add high_dpi support
+
 ## v0.4.1 - June 3, 2024
 
 - Fix README.md on crates.io
