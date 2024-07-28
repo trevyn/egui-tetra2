@@ -134,9 +134,6 @@ use tetra::{
 	Event, TetraError,
 };
 
-const SCROLL_SENSITIVITY: f32 = -48.0;
-const ZOOM_SENSITIVITY: f32 = 1.25;
-
 fn tetra_vec2_to_egui_pos2(tetra_vec2: tetra::math::Vec2<f32>) -> egui::Pos2 {
 	egui::pos2(tetra_vec2.x, tetra_vec2.y)
 }
@@ -488,17 +485,18 @@ impl EguiWrapper {
 					)));
 			}
 			tetra::Event::MouseWheelMoved { amount } => {
-				if tetra::input::is_key_down(ctx, tetra::input::Key::LeftCtrl)
-					|| tetra::input::is_key_down(ctx, tetra::input::Key::RightCtrl)
-				{
-					self.raw_input
-						.events
-						.push(egui::Event::Zoom(ZOOM_SENSITIVITY.powi(amount.y)));
-				} else {
-					self.raw_input.events.push(egui::Event::Scroll(
-						egui::vec2(amount.x as f32, amount.y as f32) * SCROLL_SENSITIVITY,
-					));
-				}
+				self.raw_input.events.push(egui::Event::MouseWheel {
+					unit: egui::MouseWheelUnit::Line,
+					delta: -egui::vec2(amount.x as f32, amount.y as f32),
+					modifiers: egui::Modifiers {
+						alt: false,
+						ctrl: tetra::input::is_key_down(ctx, tetra::input::Key::LeftCtrl)
+							|| tetra::input::is_key_down(ctx, tetra::input::Key::RightCtrl),
+						shift: false,
+						mac_cmd: false,
+						command: false,
+					},
+				});
 			}
 			tetra::Event::TextInput { text } => {
 				self.raw_input.events.push(egui::Event::Text(text.clone()));

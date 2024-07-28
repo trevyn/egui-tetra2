@@ -11,13 +11,13 @@ version = "0.4.1"
 
 [dependencies]
 copypasta = "0.10"
-egui = "0.27"
+egui = "0.28"
 open = "5"
 tetra = {version = "0.8", default-features = false}
 
 [dev-dependencies]
-egui_extras = {version = "0.27", features = ["syntect"]} 
-egui_plot = "0.27" 
+egui_extras = {version = "0.28", features = ["syntect"]} 
+egui_plot = "0.28" 
 tetra = "0.8" # include default features for testing
 
 [target.'cfg(windows)'.dev-dependencies]
