@@ -1,3 +1,7 @@
+## v0.5.1 - August 1, 2024
+
+- Fix display of images / egui textures (Thanks @james-ryans for the report! [#1](https://github.com/trevyn/egui-tetra2/issues/1))
+
 ## v0.5.0 - July 28, 2024
 
 - Update `egui` to 0.28
