@@ -128,7 +128,7 @@ use std::{fmt::Display, time::Instant};
 
 use copypasta::{ClipboardContext, ClipboardProvider};
 use egui::epaint::Primitive;
-use egui::{Context, FontImage, RawInput};
+use egui::{ColorImage, Context, FontImage, RawInput, TextureId};
 use tetra::{
 	graphics::{self, BlendState},
 	Event, TetraError,
@@ -155,12 +155,7 @@ fn egui_rect_to_tetra_rectangle(
 }
 
 fn egui_color32_to_tetra_color(egui_color: egui::Color32) -> tetra::graphics::Color {
-	tetra::graphics::Color::rgba8(
-		egui_color.r(),
-		egui_color.g(),
-		egui_color.b(),
-		egui_color.a(),
-	)
+	tetra::graphics::Color::rgba8(egui_color.r(), egui_color.g(), egui_color.b(), egui_color.a())
 }
 
 /// Converts a [tetra key](tetra::input::Key) to an
@@ -304,6 +299,28 @@ fn egui_font_image_to_tetra_texture(
 	)
 }
 
+/// Converts an [egui color image](egui::ColorImage) to a
+/// [tetra texture](tetra::graphics::Texture).
+fn egui_color_image_to_tetra_texture(
+	ctx: &mut tetra::Context,
+	egui_color_image: &ColorImage,
+) -> tetra::Result<tetra::graphics::Texture> {
+	let mut pixels = vec![];
+	for color in &egui_color_image.pixels {
+		pixels.push(color.r());
+		pixels.push(color.g());
+		pixels.push(color.b());
+		pixels.push(color.a());
+	}
+	tetra::graphics::Texture::from_data(
+		ctx,
+		egui_color_image.width() as i32,
+		egui_color_image.height() as i32,
+		graphics::TextureFormat::Rgba8,
+		pixels.as_slice(),
+	)
+}
+
 /// An error that can occur when using egui-tetra2.
 #[derive(Debug)]
 pub enum Error {
@@ -359,7 +376,7 @@ impl From<Box<dyn std::error::Error + Send + Sync>> for Error {
 pub struct EguiWrapper {
 	raw_input: RawInput,
 	ctx: Context,
-	texture: Option<tetra::graphics::Texture>,
+	textures: std::collections::HashMap<u64, tetra::graphics::Texture>,
 	last_frame_time: Instant,
 	meshes: Vec<(tetra::graphics::Rectangle<i32>, tetra::graphics::mesh::Mesh)>,
 }
@@ -371,12 +388,9 @@ impl EguiWrapper {
 		viewports.insert(egui::ViewportId::default(), egui::ViewportInfo::default());
 
 		Self {
-			raw_input: RawInput {
-				viewports,
-				..Default::default()
-			},
+			raw_input: RawInput { viewports, ..Default::default() },
 			ctx: Context::default(),
-			texture: None,
+			textures: Default::default(),
 			last_frame_time: Instant::now(),
 			meshes: vec![],
 		}
@@ -480,9 +494,7 @@ impl EguiWrapper {
 			tetra::Event::MouseMoved { position, .. } => {
 				self.raw_input
 					.events
-					.push(egui::Event::PointerMoved(tetra_vec2_to_egui_pos2(
-						*position,
-					)));
+					.push(egui::Event::PointerMoved(tetra_vec2_to_egui_pos2(*position)));
 			}
 			tetra::Event::MouseWheelMoved { amount } => {
 				self.raw_input.events.push(egui::Event::MouseWheel {
@@ -532,18 +544,32 @@ impl EguiWrapper {
 	pub fn end_frame(&mut self, ctx: &mut tetra::Context) -> Result<(), Error> {
 		if self.ctx.fonts(|f| f.font_image_delta().is_some()) {
 			let img = self.ctx.fonts(|f| f.image());
-			self.texture = Some(egui_font_image_to_tetra_texture(ctx, img)?);
+			self.textures.insert(0, egui_font_image_to_tetra_texture(ctx, img)?);
 		}
 
 		let output = self.ctx.end_frame();
 
-		if let Some(texture) = &self.texture {
-			let clips = self.ctx.tessellate(output.shapes, output.pixels_per_point);
-			for clip in clips {
-				let rect = egui_rect_to_tetra_rectangle(clip.clip_rect, output.pixels_per_point);
-				if let Primitive::Mesh(mesh) = clip.primitive {
-					let mesh = egui_mesh_to_tetra_mesh(ctx, mesh, texture.clone())?;
-					self.meshes.push((rect, mesh));
+		for (texture_id, image_delta) in output.textures_delta.set {
+			let image_data = image_delta.image;
+			if let TextureId::Managed(texture_id) = texture_id {
+				if let egui::ImageData::Color(image) = image_data {
+					self.textures.insert(
+						texture_id,
+						egui_color_image_to_tetra_texture(ctx, image.as_ref())?,
+					);
+				}
+			}
+		}
+
+		let clips = self.ctx.tessellate(output.shapes, output.pixels_per_point);
+		for clip in clips {
+			let rect = egui_rect_to_tetra_rectangle(clip.clip_rect, output.pixels_per_point);
+			if let Primitive::Mesh(mesh) = clip.primitive {
+				if let TextureId::Managed(texture_id) = mesh.texture_id {
+					if let Some(texture) = self.textures.get(&texture_id) {
+						let mesh = egui_mesh_to_tetra_mesh(ctx, mesh, texture.clone())?;
+						self.meshes.push((rect, mesh));
+					}
 				}
 			}
 		}
@@ -631,11 +657,7 @@ pub struct StateWrapper<E: From<Error>> {
 impl<E: From<Error>> StateWrapper<E> {
 	/// Wraps an implementor of [`State`] so it implements [`tetra::State`].
 	pub fn new(state: impl State<E> + 'static) -> Self {
-		Self {
-			events: vec![],
-			state: Box::new(state),
-			egui: EguiWrapper::new(),
-		}
+		Self { events: vec![], state: Box::new(state), egui: EguiWrapper::new() }
 	}
 
 	/// Returns a reference to this wrapper's egui context.

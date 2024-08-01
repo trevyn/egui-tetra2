@@ -16,8 +16,9 @@ open = "5"
 tetra = {version = "0.8", default-features = false}
 
 [dev-dependencies]
-egui_extras = {version = "0.28", features = ["syntect"]} 
+egui_extras = {version = "0.28", features = ["syntect", "all_loaders"]} 
 egui_plot = "0.28" 
+image = {version = "0.25", features = ["png"]} 
 tetra = "0.8" # include default features for testing
 
 [target.'cfg(windows)'.dev-dependencies]
