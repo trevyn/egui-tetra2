@@ -134,12 +134,15 @@ use tetra::{
 	Event, TetraError,
 };
 
-fn tetra_vec2_to_egui_pos2(tetra_vec2: tetra::math::Vec2<f32>) -> egui::Pos2 {
-	egui::pos2(tetra_vec2.x, tetra_vec2.y)
+fn tetra_vec2_to_egui_pos2(
+	tetra_vec2: tetra::math::Vec2<f32>,
+	pixels_per_point: f32,
+) -> egui::Pos2 {
+	egui::pos2(tetra_vec2.x / pixels_per_point, tetra_vec2.y / pixels_per_point)
 }
 
-fn egui_pos2_to_tetra_vec2(egui_pos2: egui::Pos2) -> tetra::math::Vec2<f32> {
-	tetra::math::Vec2::new(egui_pos2.x, egui_pos2.y)
+fn egui_pos2_to_tetra_vec2(egui_pos2: egui::Pos2, pixels_per_point: f32) -> tetra::math::Vec2<f32> {
+	tetra::math::Vec2::new(egui_pos2.x * pixels_per_point, egui_pos2.y * pixels_per_point)
 }
 
 fn egui_rect_to_tetra_rectangle(
@@ -228,6 +231,8 @@ fn tetra_key_to_egui_key(key: tetra::input::Key) -> Option<egui::Key> {
 		tetra::input::Key::PageUp => Some(egui::Key::PageUp),
 		tetra::input::Key::Space => Some(egui::Key::Space),
 		tetra::input::Key::Tab => Some(egui::Key::Tab),
+		tetra::input::Key::Equals => Some(egui::Key::Equals),
+		tetra::input::Key::Minus => Some(egui::Key::Minus),
 		_ => None,
 	}
 }
@@ -252,6 +257,7 @@ fn egui_mesh_to_tetra_mesh(
 	ctx: &mut tetra::Context,
 	egui_mesh: egui::epaint::Mesh,
 	texture: tetra::graphics::Texture,
+	pixels_per_point: f32,
 ) -> tetra::Result<tetra::graphics::mesh::Mesh> {
 	let index_buffer = tetra::graphics::mesh::IndexBuffer::new(ctx, &egui_mesh.indices)?;
 	let vertices: Vec<tetra::graphics::mesh::Vertex> = egui_mesh
@@ -259,8 +265,8 @@ fn egui_mesh_to_tetra_mesh(
 		.iter()
 		.map(|vertex| {
 			tetra::graphics::mesh::Vertex::new(
-				egui_pos2_to_tetra_vec2(vertex.pos),
-				egui_pos2_to_tetra_vec2(vertex.uv),
+				egui_pos2_to_tetra_vec2(vertex.pos, pixels_per_point),
+				egui_pos2_to_tetra_vec2(vertex.uv, pixels_per_point),
 				egui_color32_to_tetra_color(vertex.color),
 			)
 		})
@@ -408,7 +414,7 @@ impl EguiWrapper {
 				// update modifiers
 				match key {
 					tetra::input::Key::LeftCtrl | tetra::input::Key::RightCtrl => {
-						self.raw_input.modifiers.ctrl = true;
+						// self.raw_input.modifiers.ctrl = true;
 						self.raw_input.modifiers.command = true;
 					}
 					tetra::input::Key::LeftShift | tetra::input::Key::RightShift => {
@@ -474,7 +480,10 @@ impl EguiWrapper {
 			tetra::Event::MouseButtonPressed { button } => {
 				if let Some(button) = tetra_mouse_button_to_egui_pointer_button(*button) {
 					self.raw_input.events.push(egui::Event::PointerButton {
-						pos: tetra_vec2_to_egui_pos2(tetra::input::get_mouse_position(ctx)),
+						pos: tetra_vec2_to_egui_pos2(
+							tetra::input::get_mouse_position(ctx),
+							self.ctx.zoom_factor() * tetra::window::get_dpi_scale(ctx),
+						),
 						button,
 						pressed: true,
 						modifiers: self.raw_input.modifiers,
@@ -484,7 +493,10 @@ impl EguiWrapper {
 			tetra::Event::MouseButtonReleased { button } => {
 				if let Some(button) = tetra_mouse_button_to_egui_pointer_button(*button) {
 					self.raw_input.events.push(egui::Event::PointerButton {
-						pos: tetra_vec2_to_egui_pos2(tetra::input::get_mouse_position(ctx)),
+						pos: tetra_vec2_to_egui_pos2(
+							tetra::input::get_mouse_position(ctx),
+							self.ctx.zoom_factor() * tetra::window::get_dpi_scale(ctx),
+						),
 						button,
 						pressed: false,
 						modifiers: self.raw_input.modifiers,
@@ -492,9 +504,10 @@ impl EguiWrapper {
 				}
 			}
 			tetra::Event::MouseMoved { position, .. } => {
-				self.raw_input
-					.events
-					.push(egui::Event::PointerMoved(tetra_vec2_to_egui_pos2(*position)));
+				self.raw_input.events.push(egui::Event::PointerMoved(tetra_vec2_to_egui_pos2(
+					*position,
+					self.ctx.zoom_factor() * tetra::window::get_dpi_scale(ctx),
+				)));
 			}
 			tetra::Event::MouseWheelMoved { amount } => {
 				self.raw_input.events.push(egui::Event::MouseWheel {
@@ -528,11 +541,17 @@ impl EguiWrapper {
 				tetra::window::get_height(ctx) as f32,
 			),
 		});
+		// dbg!(self.ctx.zoom_factor());
 		self.raw_input
 			.viewports
 			.get_mut(&egui::ViewportId::default())
 			.unwrap()
 			.native_pixels_per_point = Some(tetra::window::get_dpi_scale(ctx));
+		// self.raw_input
+		// 	.viewports
+		// 	.get_mut(&egui::ViewportId::default())
+		// 	.unwrap()
+		// 	.current_pixels_per_point = self.ctx.zoom_factor() * tetra::window::get_dpi_scale(ctx);
 		self.raw_input.predicted_dt = (now - self.last_frame_time).as_secs_f32();
 		self.last_frame_time = now;
 		self.meshes.clear();
@@ -567,7 +586,12 @@ impl EguiWrapper {
 			if let Primitive::Mesh(mesh) = clip.primitive {
 				if let TextureId::Managed(texture_id) = mesh.texture_id {
 					if let Some(texture) = self.textures.get(&texture_id) {
-						let mesh = egui_mesh_to_tetra_mesh(ctx, mesh, texture.clone())?;
+						let mesh = egui_mesh_to_tetra_mesh(
+							ctx,
+							mesh,
+							texture.clone(),
+							output.pixels_per_point,
+						)?;
 						self.meshes.push((rect, mesh));
 					}
 				}
