@@ -37,7 +37,7 @@ jobs:
       - if: matrix.os != 'macos-latest'
         run: cargo build --examples
 
-      - run: cargo publish --dry-run
+      - run: cargo package
 
   publish:
     needs: [build]
