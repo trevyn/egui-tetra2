@@ -11,16 +11,18 @@ version = "0.5.1"
 
 [dependencies]
 copypasta = "0.10"
-egui = "0.28"
+egui = "0.29"
 open = "5"
-tetra = {version = "0.8", default-features = false}
+tetra = { version = "0.8", default-features = false }
 
 [dev-dependencies]
-egui_extras = {version = "0.28", features = ["syntect", "all_loaders"]} 
-egui_plot = "0.28" 
-image = {version = "0.25", features = ["png"]} 
-rquickjs = "0.6.2" 
-tetra = "0.8" # include default features for testing
+egui_extras = { version = "0.29", features = ["syntect", "all_loaders"] }
+egui_plot = "0.29"
+image = { version = "0.25", features = ["png"] }
+rquickjs = "0.6.2"
+# puffin = "0.19.1"
+# puffin_egui = "0.29"
+tetra = { version = "0.8", default-features = true }
 
 [target.'cfg(windows)'.dev-dependencies]
-tetra = {version = "0.8", features = ["sdl2_bundled"]}
+tetra = { version = "0.8", features = ["sdl2_bundled"] }

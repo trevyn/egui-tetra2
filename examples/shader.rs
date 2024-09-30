@@ -42,7 +42,8 @@ impl State<Box<dyn Error>> for GameState {
 		egui_ctx: &egui::Context,
 	) -> Result<(), Box<dyn Error>> {
 		egui::Window::new("Custom Shader").show(egui_ctx, |ui| {
-			let mut theme = egui_extras::syntax_highlighting::CodeTheme::from_memory(ui.ctx());
+			let mut theme =
+				egui_extras::syntax_highlighting::CodeTheme::from_memory(ui.ctx(), ui.style());
 			ui.collapsing("Theme", |ui| {
 				ui.group(|ui| {
 					theme.ui(ui);
@@ -53,8 +54,13 @@ impl State<Box<dyn Error>> for GameState {
 			ui.label(&self.shader_result);
 
 			let mut layouter = |ui: &egui::Ui, string: &str, wrap_width: f32| {
-				let mut layout_job =
-					egui_extras::syntax_highlighting::highlight(ui.ctx(), &theme, string, "c");
+				let mut layout_job = egui_extras::syntax_highlighting::highlight(
+					ui.ctx(),
+					ui.style(),
+					&theme,
+					string,
+					"c",
+				);
 				layout_job.wrap.max_width = wrap_width;
 				ui.fonts(|f| f.layout_job(layout_job))
 			};

@@ -35,7 +35,7 @@ impl GameState {
 
     return { x, y };
 }
-    
+
 getCirclePosition(t)"
 			.to_string();
 
@@ -59,7 +59,10 @@ impl State<Box<dyn Error>> for GameState {
 		egui_ctx: &egui::Context,
 	) -> Result<(), Box<dyn Error>> {
 		egui::Window::new("QuickJS Example").show(egui_ctx, |ui| {
-			let mut theme = egui_extras::syntax_highlighting::CodeTheme::from_memory(ui.ctx());
+			// puffin_egui::show_viewport_if_enabled(egui_ctx);
+
+			let mut theme =
+				egui_extras::syntax_highlighting::CodeTheme::from_memory(ui.ctx(), ui.style());
 			ui.collapsing("Theme", |ui| {
 				ui.group(|ui| {
 					theme.ui(ui);
@@ -70,8 +73,13 @@ impl State<Box<dyn Error>> for GameState {
 			ui.label(&self.js_result);
 
 			let mut layouter = |ui: &egui::Ui, string: &str, wrap_width: f32| {
-				let mut layout_job =
-					egui_extras::syntax_highlighting::highlight(ui.ctx(), &theme, string, "js");
+				let mut layout_job = egui_extras::syntax_highlighting::highlight(
+					ui.ctx(),
+					ui.style(),
+					&theme,
+					string,
+					"js",
+				);
 				layout_job.wrap.max_width = wrap_width;
 				ui.fonts(|f| f.layout_job(layout_job))
 			};
@@ -90,6 +98,9 @@ impl State<Box<dyn Error>> for GameState {
 	}
 
 	fn draw(&mut self, ctx: &mut Context, _egui_ctx: &egui::Context) -> Result<(), Box<dyn Error>> {
+		// puffin::profile_function!();
+		// puffin::GlobalProfiler::lock().new_frame();
+
 		tetra::graphics::clear(ctx, tetra::graphics::Color::BLACK);
 
 		self.js_ctx.with(|js_ctx| {
@@ -125,6 +136,8 @@ impl State<Box<dyn Error>> for GameState {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
+	// puffin::set_scopes_on(true);
+
 	ContextBuilder::new("QuickJS Example", 1280, 720)
 		.high_dpi(true)
 		.show_mouse(true)

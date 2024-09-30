@@ -536,7 +536,7 @@ impl EguiWrapper {
 		self.raw_input.predicted_dt = (now - self.last_frame_time).as_secs_f32();
 		self.last_frame_time = now;
 		self.meshes.clear();
-		self.ctx.begin_frame(self.raw_input.take());
+		self.ctx.begin_pass(self.raw_input.take());
 		Ok(())
 	}
 
@@ -547,7 +547,7 @@ impl EguiWrapper {
 			self.textures.insert(0, egui_font_image_to_tetra_texture(ctx, img)?);
 		}
 
-		let output = self.ctx.end_frame();
+		let output = self.ctx.end_pass();
 
 		for (texture_id, image_delta) in output.textures_delta.set {
 			let image_data = image_delta.image;
